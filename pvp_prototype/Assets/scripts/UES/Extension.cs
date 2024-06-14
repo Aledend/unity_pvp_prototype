@@ -161,8 +161,7 @@ public interface IExtension<ExtensionData> {
     public abstract void Destroy(Unit unit);
 }
 
-public class DerivedExtensionHandler<ExtensionType, ExtensionDataType, Parent> : ExtensionHandler<ExtensionType, ExtensionDataType> where ExtensionType : class, Parent, new() where ExtensionDataType : struct where Parent : IExtension<ExtensionDataType>, new() {}
-
+public class ExtensionHandler<ExtensionType, ExtensionDataType, Parent> : ExtensionHandler<ExtensionType, ExtensionDataType> where ExtensionType : class, Parent, new() where ExtensionDataType : struct where Parent : IExtension<ExtensionDataType>, new() {}
 public class ExtensionHandler<ExtensionType, ExtensionDataType> where ExtensionType : class, IExtension<ExtensionDataType>, new() where ExtensionDataType : struct {
     public static ExtensionDataList<ExtensionDataType> ExtensionDataList = new();
     public static ExtensionDataReference AddExtension(Unit unit) {

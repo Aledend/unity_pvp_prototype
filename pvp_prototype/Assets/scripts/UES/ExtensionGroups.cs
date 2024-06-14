@@ -12,7 +12,7 @@ public enum ExtensionGroup
 public static class ExtensionInitiator {
     public static Dictionary<ExtensionGroup, Action<Unit, List<ExtensionDataReference>>> Initiators = new() {
         {ExtensionGroup.Character, (unit, extensionList) => {
-            extensionList.Add(DerivedExtensionHandler<PlayerMoverExtension, MoverExtensionData, MoverExtension>.AddExtension(unit));
+            extensionList.Add(ExtensionHandler<PlayerMoverExtension, MoverExtensionData, MoverExtension>.AddExtension(unit));
         }},
         {ExtensionGroup.HumanControlled, (unit, extensionList) => {
             extensionList.Add(ExtensionHandler<PlayerControllerExtension, PlayerControllerData>.AddExtension(unit));
