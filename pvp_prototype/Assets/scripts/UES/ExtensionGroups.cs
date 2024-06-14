@@ -4,23 +4,33 @@ using System.Collections.Generic;
 public enum ExtensionGroup
 {
     Character,
-    HumanControlled,
+    LocallyControlled,
     AIControlled,
     Projectile,
+    Visual,
+    PlayerSpawner,
 }
 
 public static class ExtensionInitiator {
-    public static Dictionary<ExtensionGroup, Action<Unit, List<ExtensionDataReference>>> Initiators = new() {
-        {ExtensionGroup.Character, (unit, extensionList) => {
-            extensionList.Add(ExtensionHandler<PlayerMoverExtension, MoverExtensionData, MoverExtension>.AddExtension(unit));
+    public static Dictionary<ExtensionGroup, Action<Unit, ExtensionInitContext>> Initiators = new() {
+        {ExtensionGroup.Character, (unit, initContext) => {
+            if(!initContext.isHusk) {
+                ExtensionHandler<PlayerMoverExtension, MoverExtensionData, MoverExtension>.AddExtension(unit, initContext);
+            }
         }},
-        {ExtensionGroup.HumanControlled, (unit, extensionList) => {
-            extensionList.Add(ExtensionHandler<PlayerControllerExtension, PlayerControllerData>.AddExtension(unit));
+        {ExtensionGroup.LocallyControlled, (unit, initContext) => {
+            ExtensionHandler<PlayerControllerExtension, PlayerControllerData>.AddExtension(unit, initContext);
         }},
-        {ExtensionGroup.Projectile, (unit, extensionList) => {
-            extensionList.Add(ExtensionHandler<ProjectileExtension, ProjectileData>.AddExtension(unit));
-            extensionList.Add(ExtensionHandler<LazyVisualExtension, LazyVisualData>.AddExtension(unit));
-        }}
+        {ExtensionGroup.Projectile, (unit, initContext) => {
+            ExtensionHandler<ProjectileExtension, ProjectileData>.AddExtension(unit, initContext);
+            ExtensionHandler<LazyVisualExtension, LazyVisualData>.AddExtension(unit, initContext);
+        }},
+        {ExtensionGroup.Visual, (unit, initContext) => {
+            ExtensionHandler<LazyVisualExtension, LazyVisualData>.AddExtension(unit, initContext);
+        }},
+        {ExtensionGroup.PlayerSpawner, (unit, initContext) => {
+            ExtensionHandler<PlayerSpawnerExtension, PlayerSpawnerData>.AddExtension(unit, initContext);
+        }},
     };
 }
 

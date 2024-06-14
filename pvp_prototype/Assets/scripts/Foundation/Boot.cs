@@ -14,10 +14,12 @@ public class Boot
 
     private bool ready = false;
     public async void Init(){
+        Managers.network = new NetworkManager();
         Managers.asset = new AssetManager();
         await Managers.asset.Init();
 
         Managers.unitSpawner = new UnitSpawner();
+        Managers.player = new PlayerManager();
 
         Managers.system = new SystemManager();
         Managers.system.RegisterSystem(new MoverSystem());
@@ -30,6 +32,8 @@ public class Boot
             monoUnit.Init();
         }
         preInitHooks.Clear();
+
+        Managers.player.SpawnPlayer(true);
     }
 
     public void Update() {

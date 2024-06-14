@@ -11,7 +11,7 @@ public struct ProjectileData {
 
 public class ProjectileExtension : IExtension<ProjectileData>
 {
-    public void Init(Unit unit, ref ProjectileData extensionData)
+    public void Init(Unit unit, ExtensionInitContext extensionInitContext, ref ProjectileData extensionData)
     {
         extensionData.unit = unit;
         extensionData.rigidbody = unit.gameObject.GetComponent<Rigidbody2D>();

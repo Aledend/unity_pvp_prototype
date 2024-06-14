@@ -4,18 +4,25 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class AssetManager {
     public AssetRegistry assetRegistry;
-    private AsyncOperationHandle<AssetRegistry> loadHandle;
+    private AsyncOperationHandle<AssetRegistry> assetRegistryHandle;
+    public SpawnTemplates spawnTemplates;
+    private AsyncOperationHandle<SpawnTemplates> spawnTemplatesHandle;
 
     public async Task Init() {
-        loadHandle = Addressables.LoadAssetAsync<AssetRegistry>("Assets/Assets/AssetRegistry.asset");
-        await loadHandle.Task;
-        if(loadHandle.IsValid()) {
-            assetRegistry = loadHandle.Result;
-        }
+        assetRegistryHandle = Addressables.LoadAssetAsync<AssetRegistry>("Assets/Assets/AssetRegistry.asset");
+        spawnTemplatesHandle = Addressables.LoadAssetAsync<SpawnTemplates>("Assets/Assets/SpawnTemplates.asset");
+        
+        await assetRegistryHandle.Task;
+        if(assetRegistryHandle.IsValid())
+            assetRegistry = assetRegistryHandle.Result;
+
+        await spawnTemplatesHandle.Task;
+        if(spawnTemplatesHandle.IsValid())
+            spawnTemplates = spawnTemplatesHandle.Result;
     }
 
     public void Destroy() {
-        assetRegistry = null;
-        Addressables.Release(loadHandle);
+        Addressables.Release(assetRegistryHandle);
+        Addressables.Release(spawnTemplatesHandle);
     }
 }

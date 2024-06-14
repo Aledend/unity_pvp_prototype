@@ -13,7 +13,7 @@ public class ProjectileSystem : IExtensionSystem
             direction = Vector2.up;
         }
         
-        Unit unit = Managers.unitSpawner.SpawnUnit(new GameObject(), position, Utils2D.LookRotation(direction), stackalloc[] {ExtensionGroup.Projectile});
+        Unit unit = Managers.unitSpawner.SpawnUnit(position, Utils2D.LookRotation(direction), stackalloc[] {ExtensionGroup.Projectile});
         ref var projectileData = ref ExtensionHandler<ProjectileExtension, ProjectileData>.GetData(unit);
         projectileData.speed = speed;
         projectileData.direction = direction;

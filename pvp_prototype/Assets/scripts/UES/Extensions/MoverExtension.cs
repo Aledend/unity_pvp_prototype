@@ -6,7 +6,7 @@ public struct MoverExtensionData {
 
 public class MoverExtension : IExtension<MoverExtensionData>
 {
-    public void Init(Unit unit, ref MoverExtensionData extensionData)
+    public void Init(Unit unit, ExtensionInitContext extensionInitContext, ref MoverExtensionData extensionData)
     {
         extensionData.rigidbody = unit.gameObject.GetComponent<Rigidbody2D>();
     }

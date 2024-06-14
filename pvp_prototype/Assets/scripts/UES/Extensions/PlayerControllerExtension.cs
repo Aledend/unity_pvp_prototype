@@ -8,7 +8,7 @@ public struct PlayerControllerData {
 public class PlayerControllerExtension : IExtension<PlayerControllerData>
 {
 
-    public void Init(Unit unit, ref PlayerControllerData extensionData)
+    public void Init(Unit unit, ExtensionInitContext extensionInitContext, ref PlayerControllerData extensionData)
     {
         extensionData.unit = unit;
         extensionData.speed = 20;

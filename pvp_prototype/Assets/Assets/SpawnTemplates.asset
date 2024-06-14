@@ -12,5 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cf4a901745232f4c840732440b6cc8b, type: 3}
   m_Name: SpawnTemplates
   m_EditorClassIdentifier: 
-  character:
+  playerCharacter:
     extensionGroups: 00000000
+    visual:
+      m_AssetGUID: 92e65cb89a75c8349b3f35c926082956
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0

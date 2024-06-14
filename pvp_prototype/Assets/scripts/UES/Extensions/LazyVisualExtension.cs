@@ -8,7 +8,7 @@ public struct LazyVisualData {
 }
 public class LazyVisualExtension : IExtension<LazyVisualData>
 {
-    public void Init(Unit unit, ref LazyVisualData extensionData) {}
+    public void Init(Unit unit, ExtensionInitContext extensionInitContext, ref LazyVisualData extensionData) {}
 
     public void LoadVisual(Unit unit, AssetReferenceGameObject visual) {
         ref var data = ref ExtensionHandler<LazyVisualExtension, LazyVisualData>.GetData(unit);
