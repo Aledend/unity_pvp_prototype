@@ -12,25 +12,47 @@ public class ExtensionDataReference {
     public int idx;
     public Unit unit;
     public GameObject gameObject;
-    public Action<Unit> removeHandle;
-    public ExtensionDataReference(int idx, Unit unit, Action<Unit> removeHandle) {
+    public Action<Unit, bool> destroyHandle;
+    public ExtensionDataReference(int idx, Unit unit, Action<Unit, bool> destroyHandle) {
         this.idx = idx;
         this.unit = unit;
         gameObject = unit.gameObject;
-        this.removeHandle = removeHandle;
+        this.destroyHandle = destroyHandle;
     }
 }
 
-public interface IExtensionDataList {
-    public abstract bool Has(Unit unit);
-    public abstract bool Has(Unit unit, out ExtensionDataReference reference);
-    public abstract bool Has(GameObject gameObject);
-    public abstract bool Has(GameObject gameObject, out ExtensionDataReference reference);
-    public ExtensionDataReference Generate(Unit unit, Action<Unit> removeHandle);
-    public void Delete(ExtensionDataReference reference);
+public class ExtensionList {
+    private static readonly Dictionary<Unit, List<ExtensionDataReference>> unitExtensions = new();
+    
+    public static void RegisterExtension(Unit unit, ExtensionDataReference reference) {
+        if(unitExtensions.TryGetValue(unit, out var extensionList)) {
+            extensionList.Add(reference);
+        } else {
+            unitExtensions[unit] = new() {reference};
+        }
+    }
+
+    public static void UnregisterExtension(Unit unit, ExtensionDataReference reference) {
+        var list = unitExtensions[unit];
+        int idx = list.IndexOf(reference);
+        int lastIdx = list.Count - 1;
+        (list[idx], list[lastIdx]) = (list[lastIdx], list[idx]);
+        list.RemoveAt(lastIdx);
+    }
+
+    public static void DestroyAllExtensions(Unit unit) {
+        if(TryGetExtensions(unit, out var references)) {
+            foreach(var reference in references) {
+                reference.destroyHandle(unit, true);   
+            }
+        }
+        unitExtensions.Remove(unit);
+    }
+
+    public static bool TryGetExtensions(Unit unit, out List<ExtensionDataReference> extensions) => unitExtensions.TryGetValue(unit, out extensions);
 }
 
-public class ExtensionDataList<ExtensionDataType> : IExtensionDataList where ExtensionDataType : struct
+public class ExtensionDataList<ExtensionDataType> where ExtensionDataType : struct
 {
     private static ExtensionDataType[] extensionDatas = ArrayPool<ExtensionDataType>.Shared.Rent(minDataCount);
     private static ExtensionDataReference[] extensionDataReferences = ArrayPool<ExtensionDataReference>.Shared.Rent(minDataCount);
@@ -49,8 +71,8 @@ public class ExtensionDataList<ExtensionDataType> : IExtensionDataList where Ext
     public bool Has(Unit unit, out ExtensionDataReference reference) => referenceByUnit.TryGetValue(unit, out reference);
     public bool Has(GameObject gameObject) => referenceByGameObject.ContainsKey(gameObject);
     public bool Has(GameObject gameObject, out ExtensionDataReference reference) => referenceByGameObject.TryGetValue(gameObject, out reference);
-    public ExtensionDataReference Generate(Unit unit, Action<Unit> removeHandle) => Generate(unit, removeHandle, default);
-    public ExtensionDataReference Generate(Unit unit, Action<Unit> removeHandle, in ExtensionDataType extensionData = default) {
+    public ExtensionDataReference Generate(Unit unit, Action<Unit, bool> destroyHandle) => Generate(unit, destroyHandle, default);
+    public ExtensionDataReference Generate(Unit unit, Action<Unit, bool> destroyHandle, in ExtensionDataType extensionData = default) {
         int idx = dataCount;
         if(idx >= extensionDatas.Length) {
             int newLength = dataCount * 2;
@@ -65,7 +87,7 @@ public class ExtensionDataList<ExtensionDataType> : IExtensionDataList where Ext
             extensionDataReferences = newRefArray;
         }
 
-        var reference = new ExtensionDataReference(idx, unit, removeHandle);
+        var reference = new ExtensionDataReference(idx, unit, destroyHandle);
         referenceByUnit[unit] = reference;
         referenceByGameObject[unit.gameObject] = reference;
         unitByReference[reference] = unit;
@@ -76,9 +98,9 @@ public class ExtensionDataList<ExtensionDataType> : IExtensionDataList where Ext
         return reference;
     }
 
-    public void Delete(Unit unit) => Delete(referenceByUnit[unit]);
+    public ExtensionDataReference Delete(Unit unit) => Delete(referenceByUnit[unit]);
 
-    public void Delete(ExtensionDataReference reference) {
+    public ExtensionDataReference Delete(ExtensionDataReference reference) {
         int idx = reference.idx;
         int lastIdx = dataCount-1;
 
@@ -87,7 +109,7 @@ public class ExtensionDataList<ExtensionDataType> : IExtensionDataList where Ext
             (extensionDataReferences[idx], extensionDataReferences[lastIdx]) = (extensionDataReferences[lastIdx], extensionDataReferences[idx]);
             extensionDataReferences[idx].idx = idx;
         }
-        extensionDataReferences[lastIdx].idx = -1;
+        reference.idx = -1;
 
         referenceByUnit.Remove(reference.unit);
         referenceByGameObject.Remove(reference.gameObject);
@@ -107,6 +129,7 @@ public class ExtensionDataList<ExtensionDataType> : IExtensionDataList where Ext
             ArrayPool<ExtensionDataReference>.Shared.Return(extensionDataReferences);
             extensionDataReferences = newRefArray;
         }
+        return reference;
     }
 
     public Span<ExtensionDataType> AsSpan() {
@@ -123,13 +146,17 @@ public interface IExtension<ExtensionData> {
 public static class ExtensionHandler<ExtensionType, ExtensionDataType> where ExtensionType : IExtension<ExtensionDataType>, new() where ExtensionDataType : struct {
     public static ExtensionDataList<ExtensionDataType> ExtensionDataList = new();
     public static ExtensionDataReference AddExtension(Unit unit) {
-        var reference = ExtensionDataList.Generate(unit, RemoveExtension);
+        var reference = ExtensionDataList.Generate(unit, DestroyExtension);
+        ExtensionList.RegisterExtension(unit, reference);
         Instance.Init(unit, ref GetData(reference));
         return reference;
     }
-    public static void RemoveExtension(Unit unit) {
+    public static void DestroyExtension(Unit unit, bool skipUnregister = false) {
         Instance.Destroy(unit);
-        ExtensionDataList.Delete(unit);
+        var deletedReference = ExtensionDataList.Delete(unit);
+        if(!skipUnregister) {
+            ExtensionList.UnregisterExtension(unit, deletedReference);
+        }
     }
     public static ref ExtensionDataType GetData(ExtensionDataReference idxRef) => ref ExtensionDataList.Get(idxRef);
     public static ref ExtensionDataType GetData(Unit unit) => ref ExtensionDataList.Get(unit);

@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class UnitSpawner
 {
-    private readonly Dictionary<Unit, List<ExtensionDataReference>> unitExtensions = new();
     private readonly List<Unit> unitsMarkedForDeletion = new();
     public Unit SpawnUnit(GameObject gameObject = null, Span<ExtensionGroup> extensionGroups = default) {
         if(!gameObject) gameObject = new GameObject();
@@ -16,7 +15,6 @@ public class UnitSpawner
 
         Unit unit = Unit.CreateFromGameObject(gameObject);
         var extensionList = new List<ExtensionDataReference>();
-        unitExtensions[unit] = extensionList;
 
         foreach(var group in extensionGroups) {
             ExtensionInitiator.Initiators[group](unit, extensionList);
@@ -27,11 +25,7 @@ public class UnitSpawner
 
     public void PostUpdate() {
         foreach(var unit in unitsMarkedForDeletion) {
-            var extensionList = unitExtensions[unit];
-            foreach(var extensionDataReference in extensionList) {
-                extensionDataReference.removeHandle(unit);
-            }
-            unitExtensions.Remove(unit);
+            ExtensionList.DestroyAllExtensions(unit);
             UnityEngine.Object.Destroy(unit.gameObject);
         }
         unitsMarkedForDeletion.Clear();
