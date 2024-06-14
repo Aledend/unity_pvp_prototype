@@ -13,7 +13,7 @@ public class MoverExtension : IExtension<MoverExtensionData>
 
     public void Update(ref MoverExtensionData extensionData) {}
 
-    public void Move(Unit unit, Vector2 move) {
+    public virtual void Move(Unit unit, Vector2 move) {
         if(move == Vector2.zero) return;
 
         ref var data = ref ExtensionHandler<MoverExtension, MoverExtensionData>.GetData(unit);
@@ -28,4 +28,13 @@ public class MoverExtension : IExtension<MoverExtensionData>
     }
     
     public void Destroy(Unit unit) {}
+}
+
+
+public class PlayerMoverExtension : MoverExtension
+{
+    public override void Move(Unit unit, Vector2 move)
+    {
+        base.Move(unit, move);
+    }
 }

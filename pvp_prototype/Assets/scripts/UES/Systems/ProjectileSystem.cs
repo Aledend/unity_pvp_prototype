@@ -19,7 +19,7 @@ public class ProjectileSystem : IExtensionSystem
         projectileData.direction = direction;
         projectileData.maxDistance = maxDistance;
 
-        var visualExtension = ExtensionHandler<LazyVisualExtension, LazyVisualData>.Instance;
+        var visualExtension = ExtensionHandler<LazyVisualExtension, LazyVisualData>.StaticInstance(unit);
         visualExtension.LoadVisual(unit, visual);
         return unit;
     }

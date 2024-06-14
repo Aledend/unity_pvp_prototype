@@ -34,7 +34,7 @@ public class PlayerControllerExtension : IExtension<PlayerControllerData>
 
         move = move.normalized * extensionData.speed;
 
-        ExtensionHandler<MoverExtension, MoverExtensionData>.Instance.Move(unit, move);
+        ExtensionHandler<MoverExtension, MoverExtensionData>.StaticInstance(unit).Move(unit, move);
 
         if(Input.GetKeyDown(KeyCode.Space)) {
             Vector2 direction = Utils2D.LookDirection(unit.gameObject.transform.rotation);
