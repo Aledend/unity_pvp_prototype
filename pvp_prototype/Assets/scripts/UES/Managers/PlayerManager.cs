@@ -7,8 +7,9 @@ public class PlayerManager
         var spawners = ExtensionHandler<PlayerSpawnerExtension, PlayerSpawnerData>.References;
         if(spawners.Length > 0) {
             var spawner = spawners[Random.Range(0, spawners.Length)];
-            position = spawner.gameObject.transform.position;
-            rotation = spawner.gameObject.transform.rotation;
+            ExtensionHandler<PlayerSpawnerExtension, PlayerSpawnerData>.Get(spawner, out GameObject gameObject);
+            position = gameObject.transform.position;
+            rotation = gameObject.transform.rotation;
         }
 
         var template = Managers.asset.spawnTemplates.playerCharacter;

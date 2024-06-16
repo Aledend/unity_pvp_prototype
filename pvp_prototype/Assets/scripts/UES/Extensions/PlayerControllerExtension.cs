@@ -5,16 +5,16 @@ public struct PlayerControllerData {
     public float speed;
 }
 
-public class PlayerControllerExtension : IExtension<PlayerControllerData>
+public class PlayerControllerExtension : Extension<PlayerControllerData>
 {
 
-    public void Init(Unit unit, ExtensionInitContext extensionInitContext, ref PlayerControllerData extensionData)
+    public override void Init(Unit unit, ExtensionInitContext extensionInitContext, ref PlayerControllerData extensionData)
     {
         extensionData.unit = unit;
         extensionData.speed = 20;
     }
 
-    public void Update(ref PlayerControllerData extensionData)
+    public override void Update(ref PlayerControllerData extensionData)
     {
         Unit unit = extensionData.unit;
 
@@ -41,5 +41,5 @@ public class PlayerControllerExtension : IExtension<PlayerControllerData>
             Managers.system.GetSystem<ProjectileSystem>().SpawnProjectile(Managers.asset.assetRegistry.bullet, unit.gameObject.transform.position, direction, 10, 5);
         }
     }
-    public void Destroy(Unit unit) {}
+    public override void Destroy(Unit unit) {}
 }

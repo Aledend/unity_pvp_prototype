@@ -15,7 +15,7 @@ public static class ExtensionInitiator {
     public static Dictionary<ExtensionGroup, Action<Unit, ExtensionInitContext>> Initiators = new() {
         {ExtensionGroup.Character, (unit, initContext) => {
             if(!initContext.isHusk) {
-                ExtensionHandler<PlayerMoverExtension, MoverExtensionData, MoverExtension>.AddExtension(unit, initContext);
+                ExtensionHandler<PlayerMoverExtension, MoverExtensionData>.AddExtension(unit, initContext);
             }
         }},
         {ExtensionGroup.LocallyControlled, (unit, initContext) => {
@@ -23,10 +23,10 @@ public static class ExtensionInitiator {
         }},
         {ExtensionGroup.Projectile, (unit, initContext) => {
             ExtensionHandler<ProjectileExtension, ProjectileData>.AddExtension(unit, initContext);
-            ExtensionHandler<LazyVisualExtension, LazyVisualData>.AddExtension(unit, initContext);
+            ExtensionHandler<LazyVisualExtension, VisualData>.AddExtension(unit, initContext);
         }},
         {ExtensionGroup.Visual, (unit, initContext) => {
-            ExtensionHandler<LazyVisualExtension, LazyVisualData>.AddExtension(unit, initContext);
+            ExtensionHandler<LazyVisualExtension, VisualData>.AddExtension(unit, initContext);
         }},
         {ExtensionGroup.PlayerSpawner, (unit, initContext) => {
             ExtensionHandler<PlayerSpawnerExtension, PlayerSpawnerData>.AddExtension(unit, initContext);

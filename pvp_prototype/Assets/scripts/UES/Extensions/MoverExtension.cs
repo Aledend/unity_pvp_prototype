@@ -4,14 +4,14 @@ public struct MoverExtensionData {
     public Rigidbody2D rigidbody;
 }
 
-public class MoverExtension : IExtension<MoverExtensionData>
+public class MoverExtension : Extension<MoverExtensionData>
 {
-    public void Init(Unit unit, ExtensionInitContext extensionInitContext, ref MoverExtensionData extensionData)
+    public override void Init(Unit unit, ExtensionInitContext extensionInitContext, ref MoverExtensionData extensionData)
     {
         extensionData.rigidbody = unit.gameObject.GetComponent<Rigidbody2D>();
     }
 
-    public void Update(ref MoverExtensionData extensionData) {}
+    public override void Update(ref MoverExtensionData extensionData) {}
 
     public virtual void Move(Unit unit, Vector2 move) {
         if(move == Vector2.zero) return;
@@ -27,7 +27,7 @@ public class MoverExtension : IExtension<MoverExtensionData>
         unit.gameObject.transform.rotation = Utils2D.LookRotation(move);
     }
     
-    public void Destroy(Unit unit) {}
+    public override void Destroy(Unit unit) {}
 }
 
 

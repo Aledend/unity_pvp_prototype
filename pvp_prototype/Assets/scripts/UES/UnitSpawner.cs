@@ -30,24 +30,24 @@ public class UnitSpawner
         Unit unit = SpawnUnit(position, rotation, spawnTemplate.extensionGroups);
         if(spawnTemplate.visual.AssetGUID != string.Empty) {
             AddExtension(unit, ExtensionGroup.Visual);
-            var lazyVisualExtension = ExtensionHandler<LazyVisualExtension, LazyVisualData>.StaticInstance(unit);
+            var lazyVisualExtension = ExtensionHandler<LazyVisualExtension, VisualData>.StaticInstance(unit);
             lazyVisualExtension.LoadVisual(unit, spawnTemplate.visual);
         }
         return unit;
     }
 
     public void AddExtensions(Unit unit, Span<ExtensionGroup> extensionGroups) {
-        foreach(var group in extensionGroups) {
-            AddExtension(unit, group);
-        }
-    }
-
-    public void AddExtension(Unit unit, ExtensionGroup extensionGroup) {
         // TODO(theodor.brandt:2024-06-14): this should just be one offs
         extensionInitContext.isHusk = false;
         extensionInitContext.isAuthor = true;
 
-        ExtensionInitiator.Initiators[extensionGroup](unit, extensionInitContext);
+        foreach(var group in extensionGroups) {
+            ExtensionInitiator.Initiators[group](unit, extensionInitContext);
+        }
+    }
+
+    public void AddExtension(Unit unit, ExtensionGroup extensionGroup) {
+        AddExtensions(unit, stackalloc ExtensionGroup[1] {extensionGroup});
     }
 
     public void PostUpdate() {

@@ -9,15 +9,15 @@ public struct ProjectileData {
     public float coveredDistance;
 }
 
-public class ProjectileExtension : IExtension<ProjectileData>
+public class ProjectileExtension : Extension<ProjectileData>
 {
-    public void Init(Unit unit, ExtensionInitContext extensionInitContext, ref ProjectileData extensionData)
+    public override void Init(Unit unit, ExtensionInitContext extensionInitContext, ref ProjectileData extensionData)
     {
         extensionData.unit = unit;
         extensionData.rigidbody = unit.gameObject.GetComponent<Rigidbody2D>();
     }
 
-    public void Update(ref ProjectileData extensionData)
+    public override void Update(ref ProjectileData extensionData)
     {
         Unit unit = extensionData.unit;
         var speed = extensionData.speed;
@@ -37,5 +37,5 @@ public class ProjectileExtension : IExtension<ProjectileData>
 
         extensionData.unit.gameObject.transform.rotation = Utils2D.LookRotation(direction);
     }
-    public void Destroy(Unit unit) {}
+    public override void Destroy(Unit unit) {}
 }
