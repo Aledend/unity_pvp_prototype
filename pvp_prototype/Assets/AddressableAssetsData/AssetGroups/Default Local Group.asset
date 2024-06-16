@@ -25,6 +25,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7bfe94fa65d589046a6c4c97de9040e0
+    m_Address: Assets/Assets/Sword.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 92e65cb89a75c8349b3f35c926082956
     m_Address: Assets/Assets/CharacterCircle.prefab
     m_ReadOnly: 0
@@ -32,6 +37,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e16c91ee585a1334eaadef752bcf56e4
     m_Address: Assets/Assets/SpawnTemplates.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f50833e43e55d3d4c8b3f296790b0d01
+    m_Address: Assets/Assets/ItemDatabase.asset
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

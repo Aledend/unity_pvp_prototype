@@ -102,6 +102,7 @@ public class RefArrayImpl<T, RefT> where T : struct where RefT : RefArrayItemRef
 
     public ref T this[int index]  => ref items[index];
     public ref T this[RefT reference] => ref items[reference.index];
+    public ref T this[RefArrayItemReference reference] => ref items[(reference as RefT).index];
 
     protected RefT Add(T t = default) {
         if(itemCount >= items.Length) {

@@ -14,7 +14,7 @@ public class ProjectileExtension : Extension<ProjectileData>
     public override void Init(Unit unit, ExtensionInitContext extensionInitContext, ref ProjectileData extensionData)
     {
         extensionData.unit = unit;
-        extensionData.rigidbody = unit.gameObject.GetComponent<Rigidbody2D>();
+        extensionData.rigidbody = unit.GameObject().GetComponent<Rigidbody2D>();
     }
 
     public override void Update(ref ProjectileData extensionData)
@@ -23,11 +23,12 @@ public class ProjectileExtension : Extension<ProjectileData>
         var speed = extensionData.speed;
         var direction = extensionData.direction;
         var distanceToCover = speed * Time.deltaTime;
-        var newPos = (Vector2)unit.gameObject.transform.position + direction * distanceToCover;
+        var gameObject = unit.GameObject();
+        var newPos = (Vector2)gameObject.transform.position + direction * distanceToCover;
         if(extensionData.rigidbody) {
             extensionData.rigidbody.MovePosition(newPos);
         } else {
-            unit.gameObject.transform.position = newPos;
+            unit.GameObject().transform.position = newPos;
         }
 
         extensionData.coveredDistance += distanceToCover;
@@ -35,7 +36,7 @@ public class ProjectileExtension : Extension<ProjectileData>
             Managers.unitSpawner.MarkForDeletion(unit);
         }
 
-        extensionData.unit.gameObject.transform.rotation = Utils2D.LookRotation(direction);
+        gameObject.transform.rotation = Utils2D.LookRotation(direction);
     }
     public override void Destroy(Unit unit) {}
 }

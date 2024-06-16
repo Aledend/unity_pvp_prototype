@@ -8,7 +8,8 @@ public enum ExtensionGroup
     AIControlled,
     Projectile,
     Visual,
-    PlayerSpawner,
+    PlayerSpawner,    
+    ItemWielder,
 }
 
 public static class ExtensionInitiator {
@@ -30,6 +31,13 @@ public static class ExtensionInitiator {
         }},
         {ExtensionGroup.PlayerSpawner, (unit, initContext) => {
             ExtensionHandler<PlayerSpawnerExtension, PlayerSpawnerData>.AddExtension(unit, initContext);
+        }},
+        {ExtensionGroup.ItemWielder, (unit, initContext) => {
+            if(initContext.isHusk) {
+                ExtensionHandler<HuskItemWielderExtension, ItemWielderData>.AddExtension(unit, initContext);
+            } else {
+                ExtensionHandler<ItemWielderExtension, ItemWielderData>.AddExtension(unit, initContext);
+            }
         }},
     };
 }

@@ -61,7 +61,7 @@ public class ExtensionDataList<ExtensionDataType> where ExtensionDataType : stru
     public void Get(RefArrayItemReference reference, out GameObject gameObject) => extensionDataReferences.Get(reference, out gameObject);
     public RefArrayItemReference GetReference(Unit unit) => extensionDataReferences.GetReference(unit);
     public RefArrayItemReference Generate(Unit unit) => Generate(unit, default);
-    public RefArrayItemReference Generate(Unit unit, in ExtensionDataType extensionData = default) => extensionDataReferences.Add(unit, unit.gameObject, extensionData);
+    public RefArrayItemReference Generate(Unit unit, in ExtensionDataType extensionData = default) => extensionDataReferences.Add(unit, unit.GameObject(), extensionData);
 
     public void Delete(Unit unit) => extensionDataReferences.Remove(unit);
     public void Delete(RefArrayItemReference reference) => extensionDataReferences.Remove(reference as RefArray<ExtensionDataType, Unit, GameObject>.Ref);
@@ -108,7 +108,7 @@ public class ExtensionHandler<ExtensionType, ExtensionDataType> : ExtensionHandl
         
         RefArrayItemReference dataReference = extensionDataList.Generate(unit);
 
-        extensionMetadata = extensionMetadataList.Add(unit, unit.gameObject);
+        extensionMetadata = extensionMetadataList.Add(unit, unit.GameObject());
         extensionMetadata.unit = unit;
         extensionMetadata.destroyHandle = DestroyExtension;
         extensionMetadata.mainDataReference = dataReference;

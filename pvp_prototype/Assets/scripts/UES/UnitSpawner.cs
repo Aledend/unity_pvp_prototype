@@ -11,14 +11,14 @@ public class UnitSpawner
     }
 
     public Unit SpawnUnit(GameObject gameObject, Span<ExtensionGroup> extensionGroups = default) {
-        Unit unit = Unit.CreateFromGameObject(gameObject);
+        Unit unit = new(gameObject);
         AddExtensions(unit, extensionGroups);
         return unit;
     }
 
     public Unit SpawnUnit(Vector2 position, Quaternion rotation, Span<ExtensionGroup> extensionGroups = default) {
         Unit unit = SpawnUnit(extensionGroups);
-        unit.gameObject.transform.SetPositionAndRotation(position, rotation);
+        unit.GameObject().transform.SetPositionAndRotation(position, rotation);
         return unit;
     }
 
@@ -53,7 +53,7 @@ public class UnitSpawner
     public void PostUpdate() {
         foreach(var unit in unitsMarkedForDeletion) {
             ExtensionList.DestroyAllExtensions(unit);
-            UnityEngine.Object.Destroy(unit.gameObject);
+            UnityEngine.Object.Destroy(unit.GameObject());
         }
         unitsMarkedForDeletion.Clear();
     }

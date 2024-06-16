@@ -37,8 +37,9 @@ public class PlayerControllerExtension : Extension<PlayerControllerData>
         ExtensionHandler<MoverExtension, MoverExtensionData>.StaticInstance(unit).Move(unit, move);
 
         if(Input.GetKeyDown(KeyCode.Space)) {
-            Vector2 direction = Utils2D.LookDirection(unit.gameObject.transform.rotation);
-            Managers.system.GetSystem<ProjectileSystem>().SpawnProjectile(Managers.asset.assetRegistry.bullet, unit.gameObject.transform.position, direction, 10, 5);
+            Transform transform = unit.GameObject().transform;
+            Vector2 direction = Utils2D.LookDirection(transform.rotation);
+            Managers.system.GetSystem<ProjectileSystem>().SpawnProjectile(Managers.asset.assetRegistry.bullet, transform.position, direction, 10, 5);
         }
     }
     public override void Destroy(Unit unit) {}

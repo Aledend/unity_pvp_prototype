@@ -57,7 +57,8 @@ public class LazyVisualExtension : VisualExtension
 
             GameObject go = Object.Instantiate(prefab);
             data.visualGameObject = go;
-            go.transform.SetParent(unit.gameObject.transform, false);
+
+            unit.SetVisual(go);
         };
     }
 

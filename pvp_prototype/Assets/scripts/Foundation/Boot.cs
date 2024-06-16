@@ -33,7 +33,9 @@ public class Boot
         }
         preInitHooks.Clear();
 
-        Managers.player.SpawnPlayer(true);
+        Unit playerUnit = Managers.player.SpawnPlayer(true);
+        var itemWielderExtension = ExtensionHandler<ItemWielderExtension, ItemWielderData>.StaticInstance(playerUnit);
+        itemWielderExtension.AddSlot(playerUnit, Managers.asset.itemDatabase.sword);
     }
 
     public void Update() {

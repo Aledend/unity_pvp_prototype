@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b149855db305c8842bd124ab03bbceec, type: 3}
+  m_Name: ItemDatabase
+  m_EditorClassIdentifier: 
+  sword:
+    itemSpawnTemplate:
+      extensionGroups: 
+      visual:
+        m_AssetGUID: 7bfe94fa65d589046a6c4c97de9040e0
+        m_SubObjectName: 
+        m_SubObjectGUID: 
+        m_SubObjectType: 
+        m_EditorAssetChanged: 0
+    actionTemplate: {fileID: 11400000, guid: ca90ca1988a83f44297a6f928e59365d, type: 2}
+    node: 0
+    supportsMultiWield: 0

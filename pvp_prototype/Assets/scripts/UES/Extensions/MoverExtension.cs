@@ -8,7 +8,7 @@ public class MoverExtension : Extension<MoverExtensionData>
 {
     public override void Init(Unit unit, ExtensionInitContext extensionInitContext, ref MoverExtensionData extensionData)
     {
-        extensionData.rigidbody = unit.gameObject.GetComponent<Rigidbody2D>();
+        extensionData.rigidbody = unit.GameObject().GetComponent<Rigidbody2D>();
     }
 
     public override void Update(ref MoverExtensionData extensionData) {}
@@ -17,14 +17,15 @@ public class MoverExtension : Extension<MoverExtensionData>
         if(move == Vector2.zero) return;
 
         ref var data = ref ExtensionHandler<MoverExtension, MoverExtensionData>.GetData(unit);
-        var newPos = (Vector2)unit.gameObject.transform.position + move * Time.deltaTime;
+        var gameObject = unit.GameObject();
+        var newPos = (Vector2)gameObject.transform.position + move * Time.deltaTime;
         if(data.rigidbody) {
             data.rigidbody.MovePosition(newPos);
         } else {
-            unit.gameObject.transform.position = newPos;
+            gameObject.transform.position = newPos;
         }
 
-        unit.gameObject.transform.rotation = Utils2D.LookRotation(move);
+        gameObject.transform.rotation = Utils2D.LookRotation(move);
     }
     
     public override void Destroy(Unit unit) {}
