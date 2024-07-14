@@ -1,6 +1,7 @@
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 public enum LookupArrayIncreaseType {
     Exponential,
@@ -27,8 +28,8 @@ public class LookupArray<T, LookupType1, LookupType2> : LookupArrayImpl<T> where
     public bool Has(LookupType1 key, out T instance) => instanceByKey1.TryGetValue(key, out instance);
     public bool Has(LookupType2 key, out T instance) => instanceByKey2.TryGetValue(key, out instance);
 
-    public T Add(LookupType1 key1, LookupType2 key2) {
-        T instance = Add();
+    public T Rent(LookupType1 key1, LookupType2 key2) {
+        T instance = Rent();
         instanceByKey1[key1] = instance;
         instanceByKey2[key2] = instance;
         key1ByInstance[instance] = key1;
@@ -36,9 +37,19 @@ public class LookupArray<T, LookupType1, LookupType2> : LookupArrayImpl<T> where
         return instance;
     }
 
-    public void Remove(LookupType1 key) => Remove(Get(key));
-    public void Remove(LookupType2 key) => Remove(Get(key));
-    public new void Remove(T instance)
+    public void Insert(T instance, LookupType1 key1, LookupType2 key2) {
+        Debug.Assert(!Has(instance));
+
+        Insert(instance);
+        instanceByKey1[key1] = instance;
+        instanceByKey2[key2] = instance;
+        key1ByInstance[instance] = key1;
+        key2ByInstance[instance] = key2;
+    }
+
+    public void Return(LookupType1 key) => Return(Get(key));
+    public void Return(LookupType2 key) => Return(Get(key));
+    public new void Return(T instance)
     {
         Get(instance, out LookupType1 key1);
         Get(instance, out LookupType2 key2);
@@ -46,7 +57,7 @@ public class LookupArray<T, LookupType1, LookupType2> : LookupArrayImpl<T> where
         instanceByKey2.Remove(key2);
         key1ByInstance.Remove(instance);
         key2ByInstance.Remove(instance);
-        base.Remove(instance);
+        base.Return(instance);
     }
 }
 
@@ -61,20 +72,29 @@ public class LookupArray<T, LookupType> : LookupArrayImpl<T> where T : class, ne
     public bool Has(LookupType key) => instanceByKey.ContainsKey(key);
     public bool Has(LookupType key, out T instance) => instanceByKey.TryGetValue(key, out instance);
 
-    public T Add(LookupType key) 
+    public T Rent(LookupType key) 
     {
-        T instance = Add();
+        T instance = Rent();
         instanceByKey[key] = instance;
         keyByInstance[instance] = key;
         return instance;
     }
-    public void Remove(LookupType key) => Remove(Get(key));
-    public new void Remove(T instance)
+
+    public void Insert(T instance, LookupType key) {
+        Debug.Assert(!Has(instance));
+        
+        Insert(instance);
+        instanceByKey[key] = instance;
+        keyByInstance[instance] = key;
+    }
+
+    public void Return(LookupType key) => Return(Get(key));
+    public new void Return(T instance)
     {
         var key = Get(instance);
         instanceByKey.Remove(key);
         keyByInstance.Remove(instance);
-        base.Remove(instance);
+        base.Return(instance);
     }
 }
 
@@ -94,7 +114,9 @@ public class LookupArrayImpl<T> where T : class, new() {
         ArrayPool<T>.Shared.Return(items);
     }
 
-    protected T Add() {
+    public bool Has(T instance) => indexByInstance.ContainsKey(instance);
+
+    protected T Rent() {
         if(itemCount >= items.Length) {
             int newCount = Math.Max(increaseType == LookupArrayIncreaseType.Exponential ? itemCount * 2 : itemCount+1, 1);
 
@@ -111,21 +133,36 @@ public class LookupArrayImpl<T> where T : class, new() {
         return item;
     }
 
-    public void SwapDelete(T instance) {
+    protected void Insert(T instance) {
+        if(itemCount >= items.Length) {
+            int newCount = Math.Max(increaseType == LookupArrayIncreaseType.Exponential ? itemCount * 2 : itemCount+1, 1);
+
+            var newArray = ArrayPool<T>.Shared.Rent(newCount);
+            Array.Copy(items, newArray, itemCount);
+            ArrayPool<T>.Shared.Return(items);
+            items = newArray;
+        }
+
+        var item = items[itemCount] = instance;
+        indexByInstance[item] = itemCount;
+        ++itemCount;
+    }
+
+    public void SwapReturn(T instance) {
         int index = indexByInstance[instance];
         --itemCount;
         (items[index], items[itemCount]) = (items[itemCount], items[index]);
         indexByInstance[items[index]] = index;
-        indexByInstance[instance] = -1;
+        indexByInstance.Remove(instance);
     }
 
-    protected void Remove(T instance) {
+    protected void Return(T instance) {
         int index = indexByInstance[instance];
         for(int i=index; i<itemCount-1; ++i) {
             items[i] = items[i+1];
             indexByInstance[items[i]] = i;
         }
-        indexByInstance[instance] = -1;
+        indexByInstance.Remove(instance);
         --itemCount;
     }
 

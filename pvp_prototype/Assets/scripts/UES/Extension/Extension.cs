@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public class ExtensionInitContext {
     public bool isAuthor;
@@ -32,7 +33,7 @@ public class ExtensionList {
         int lastIdx = list.Count - 1;
         (list[idx], list[lastIdx]) = (list[lastIdx], list[idx]);
         list.RemoveAt(lastIdx);
-        if(unitExtensions.Count == 0) {
+        if(list.Count == 0) {
             unitExtensions.Remove(unit);
         }
     }
@@ -96,19 +97,35 @@ public class ExtraDataHandler<ExtensionDataType> where ExtensionDataType : struc
     public static ref ExtensionDataType GetData(Unit unit) => ref extensionDataList.Get(unit);
 }
 
+public interface IExtensionLookup<ExtensionType> where ExtensionType : class, IExtension, new() {
+    private static readonly Lookup<Unit, GameObject, ExtensionType> extensionInstanceList = new();
+    public static ExtensionType Get(Unit unit) => extensionInstanceList[unit];
+    public static ExtensionType Get(GameObject gameObject) => extensionInstanceList[gameObject];
+    public static bool Has(Unit unit) => extensionInstanceList.Has(unit);
+    public static bool Has(GameObject gameObject) => extensionInstanceList.Has(gameObject);
+    public static void Set(Unit unit, GameObject gameObject, ExtensionType instance) => extensionInstanceList.Set(unit, gameObject, instance);
+    public static void Remove(Unit unit) => extensionInstanceList.Remove(unit);
+    public static void Remove(GameObject gameObject) => extensionInstanceList.Remove(gameObject);
+    public static void Remove(Unit unit, GameObject gameObject) => extensionInstanceList.Remove(unit, gameObject);
+}
+
 public class ExtensionHandlerInheritanceLayer<ExtensionDataType> {
     protected static readonly LookupArray<ExtensionMetadata, Unit, GameObject> extensionMetadataList = new();
 }
 
-public class ExtensionHandler<ExtensionType, ExtensionDataType> : ExtensionHandlerInheritanceLayer<ExtensionDataType> where ExtensionType : Extension<ExtensionDataType>, new() where ExtensionDataType : struct {
+public class ExtensionHandler<ExtensionType, ExtensionDataType> : ExtensionHandlerInheritanceLayer<ExtensionDataType>, IExtensionLookup<ExtensionType> where ExtensionType : Extension<ExtensionDataType>, new() where ExtensionDataType : struct {
     private static readonly ExtensionDataList<ExtensionDataType> extensionDataList = new();
     public static ExtensionMetadata AddExtension(Unit unit, ExtensionInitContext extensionInitContext) {
         if(Has(unit, out ExtensionMetadata extensionMetadata))
             return extensionMetadata;
         
+        Assert.IsFalse(IExtensionLookup<ExtensionType>.Has(unit), "Adding multiple extensions of the same type on the same unit is not allowed.");
+        Assert.IsFalse(extensionMetadataList.Has(unit), "Adding multiple extensions with the same data type on the same unit is not allowed.");
+
+        IExtensionLookup<ExtensionType>.Set(unit, unit.GameObject(), staticInstance);
         RefArrayItemReference dataReference = extensionDataList.Generate(unit);
 
-        extensionMetadata = extensionMetadataList.Add(unit, unit.GameObject());
+        extensionMetadata = extensionMetadataList.Rent(unit, unit.GameObject());
         extensionMetadata.unit = unit;
         extensionMetadata.destroyHandle = DestroyExtension;
         extensionMetadata.mainDataReference = dataReference;
@@ -125,7 +142,8 @@ public class ExtensionHandler<ExtensionType, ExtensionDataType> : ExtensionHandl
         (extensionMetadata.instance as ExtensionType).Destroy(unit);
         ExtensionList.UnregisterExtension(unit, extensionMetadata);
         extensionDataList.Delete(extensionMetadata.mainDataReference);
-        extensionMetadataList.SwapDelete(extensionMetadata);
+        extensionMetadataList.SwapReturn(extensionMetadata);
+        IExtensionLookup<ExtensionType>.Remove(unit);
     }
 
     public static ref ExtensionDataType GetData(RefArrayItemReference reference) => ref extensionDataList.Get(reference);
